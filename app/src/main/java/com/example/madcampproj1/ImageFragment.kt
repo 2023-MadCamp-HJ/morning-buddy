@@ -98,11 +98,31 @@ class ImageFragment : Fragment() {
         scaleGestureDetector = ScaleGestureDetector(
             requireContext(),
             object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                private var lastFocusX = 0f
+                private var lastFocusY = 0f
+
+                override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                    lastFocusX = detector.focusX
+                    lastFocusY = detector.focusY
+                    return true
+                }
+
                 override fun onScale(detector: ScaleGestureDetector): Boolean {
-                    scaleFactor *= detector.scaleFactor
-                    scaleFactor = max(0.8f, min(scaleFactor, 7.0f))
-                    imageView.scaleX = scaleFactor
-                    imageView.scaleY = scaleFactor
+                    val scaleFactor = detector.scaleFactor
+                    val focusX = detector.focusX
+                    val focusY = detector.focusY
+
+                    imageView.pivotX = focusX
+                    imageView.pivotY = focusY
+
+                    val newScaleX = imageView.scaleX * scaleFactor
+                    val newScaleY = imageView.scaleY * scaleFactor
+
+                    imageView.scaleX = min(max(0.8f, newScaleX), 7.0f)
+                    imageView.scaleY = min(max(0.8f, newScaleY), 7.0f)
+
+                    lastFocusX = focusX
+                    lastFocusY = focusY
 
                     return true
                 }
@@ -120,12 +140,30 @@ class ImageFragment : Fragment() {
     private inner class DoubleTapGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDoubleTap(e: MotionEvent): Boolean {
             val currentScale = imageView.scaleX
-            val targetScale = if (currentScale == 1.0f) 2.0f else 1.0f
+            val targetScale = if (currentScale == 1.0f) 2.5f else 1.0f
+
+            val focusX = e.x
+            val focusY = e.y
+
             imageView.animate()
                 .scaleX(targetScale)
                 .scaleY(targetScale)
                 .setDuration(200)
+                .setUpdateListener { animation ->
+                    val animatedFraction = animation.animatedFraction
+                    val scaleFactor = currentScale + (targetScale - currentScale) * animatedFraction
+
+                    val pivotX = focusX - imageView.left
+                    val pivotY = focusY - imageView.top
+
+                    imageView.pivotX = pivotX
+                    imageView.pivotY = pivotY
+
+                    imageView.scaleX = scaleFactor
+                    imageView.scaleY = scaleFactor
+                }
                 .start()
+
             scaleFactor = targetScale
             return true
         }
