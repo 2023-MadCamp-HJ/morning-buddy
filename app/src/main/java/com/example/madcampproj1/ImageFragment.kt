@@ -18,8 +18,13 @@ import com.squareup.picasso.Picasso
 import java.io.IOException
 import java.lang.Float.max
 import java.lang.Float.min
+import android.view.GestureDetector
+import android.view.MotionEvent
+import androidx.core.view.GestureDetectorCompat
 
 class ImageFragment : Fragment() {
+
+    private lateinit var gestureDetector: GestureDetectorCompat
 
     companion object {
         private const val ARG_IMAGE_URI = "image_uri"
@@ -104,11 +109,26 @@ class ImageFragment : Fragment() {
             }
         )
 
+        gestureDetector = GestureDetectorCompat(requireContext(), DoubleTapGestureListener())
         imageView.setOnTouchListener { _, event ->
             scaleGestureDetector.onTouchEvent(event)
+            gestureDetector.onTouchEvent(event)
             true
         }
+    }
 
+    private inner class DoubleTapGestureListener : GestureDetector.SimpleOnGestureListener() {
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            val currentScale = imageView.scaleX
+            val targetScale = if (currentScale == 1.0f) 2.0f else 1.0f
+            imageView.animate()
+                .scaleX(targetScale)
+                .scaleY(targetScale)
+                .setDuration(200)
+                .start()
+            scaleFactor = targetScale
+            return true
+        }
     }
 
     fun onPalette(palette: Palette?) {
