@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         adapter.fragmentList = fragmentList
 
         binding.viewPager.adapter = adapter
+        binding.viewPager.isUserInputEnabled = false
 
         // Tab Title 설정
         val tabTitles = listOf("tab1", "tab2", "tab3")
@@ -26,6 +27,5 @@ class MainActivity : AppCompatActivity() {
         TabLayoutMediator(binding.tabLayout, binding.viewPager) {tab, position ->
             tab.text = tabTitles[position]
         }.attach()
-
     }
 }
