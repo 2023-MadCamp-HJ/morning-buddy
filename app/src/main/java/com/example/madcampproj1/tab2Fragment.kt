@@ -10,10 +10,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -25,8 +27,11 @@ class tab2Fragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewPager: ViewPager2
     private lateinit var imageGalleryAdapter: ImageGalleryAdapter
+    private lateinit var panoramaRecyclerView: RecyclerView
+    private lateinit var panoramaImageGalleryAdapter: PanoramaImageGalleryAdapter
 
     private var isGalleryViewVisible = true
+    private var isPanoramaViewVisible = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,8 +48,29 @@ class tab2Fragment : Fragment() {
         viewPager = view.findViewById(R.id.view_pager)
         viewPager.visibility = View.GONE
 
+        panoramaRecyclerView = view.findViewById(R.id.rv_panorama_images)
+        panoramaRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
         val images = getImagesFromGallery()
         imageGalleryAdapter = ImageGalleryAdapter(requireContext(), images)
+
+        panoramaImageGalleryAdapter = PanoramaImageGalleryAdapter(requireContext(), images)
+
+        val toggleButton = view.findViewById<Button>(R.id.toggle_button)
+
+        toggleButton.setOnClickListener {
+            if (isPanoramaViewVisible) {
+                // Switch to gallery view
+                recyclerView.visibility = View.VISIBLE
+                panoramaRecyclerView.visibility = View.GONE
+                isPanoramaViewVisible = false
+            } else if (!isPanoramaViewVisible && isGalleryViewVisible){
+                // Switch to panorama view
+                recyclerView.visibility = View.GONE
+                panoramaRecyclerView.visibility = View.VISIBLE
+                isPanoramaViewVisible = true
+            }
+        }
 
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -63,6 +89,8 @@ class tab2Fragment : Fragment() {
         // 최신 이미지로 스크롤 이동
         val lastPosition = images.size - 1
         recyclerView.scrollToPosition(lastPosition)
+
+        panoramaRecyclerView.adapter = panoramaImageGalleryAdapter
 
         return view
     }
@@ -179,6 +207,67 @@ class tab2Fragment : Fragment() {
         }
     }
 
+    private inner class PanoramaImageGalleryAdapter(private val context: Context, private val images: Array<Uri>
+    ) : RecyclerView.Adapter<PanoramaImageGalleryAdapter.MyViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+            val context = parent.context
+            val inflater = LayoutInflater.from(context)
+            val photoView = inflater.inflate(R.layout.item_image, parent, false)
+            return MyViewHolder(photoView)
+        }
+
+        override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+            val uri = images[position]
+            val imageView = holder.photoImageView
+
+            val rotation = try {
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    val exif = ExifInterface(inputStream)
+                    val orientation = exif.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL
+                    )
+                    when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                        else -> 0f
+                    }
+                } ?: 0f
+            } catch (e: IOException) {
+                e.printStackTrace()
+                0f
+            }
+
+            Picasso.get()
+                .load(uri)
+                .rotate(rotation)
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
+                .fit()
+                .tag(context)
+                .into(imageView)
+        }
+
+        override fun getItemCount(): Int {
+            return images.size
+        }
+
+        inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+            View.OnClickListener {
+
+            var photoImageView: ImageView = itemView.findViewById(R.id.iv_photo)
+
+            init {
+                itemView.setOnClickListener(this)
+            }
+
+            override fun onClick(view: View) {
+                // Add code here to switch to full-size image view when an image is tapped
+            }
+        }
+    }
 }
 
 
