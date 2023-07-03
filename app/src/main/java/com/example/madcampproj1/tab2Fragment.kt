@@ -1,7 +1,9 @@
 package com.example.madcampproj1
 
+import android.Manifest
 import android.content.ContentUris
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
@@ -14,7 +16,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +29,7 @@ import com.squareup.picasso.Picasso
 import java.io.IOException
 
 class tab2Fragment : Fragment() {
+    private val REQUEST_CODE = 1
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewPager: ViewPager2
@@ -34,6 +39,14 @@ class tab2Fragment : Fragment() {
 
     private var isGalleryViewVisible = true
     private var isPanoramaViewVisible = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,16 +60,28 @@ class tab2Fragment : Fragment() {
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = layoutManager
 
-        viewPager = view.findViewById(R.id.view_pager)
-        viewPager.visibility = View.GONE
-
         panoramaRecyclerView = view.findViewById(R.id.rv_panorama_images)
         panoramaRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        val images = getImagesFromGallery()
-        imageGalleryAdapter = ImageGalleryAdapter(requireContext(), images)
+        viewPager = view.findViewById(R.id.view_pager)
+        viewPager.visibility = View.GONE
 
-        panoramaImageGalleryAdapter = PanoramaImageGalleryAdapter(requireContext(), images)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            val images = getImagesFromGallery()
+            imageGalleryAdapter = ImageGalleryAdapter(requireContext(), images)
+            recyclerView.adapter = imageGalleryAdapter
+            // 최신 이미지로 스크롤 이동
+            val lastPosition = images.size - 1
+            recyclerView.scrollToPosition(lastPosition)
+
+            panoramaImageGalleryAdapter = PanoramaImageGalleryAdapter(requireContext(), images)
+            panoramaRecyclerView.adapter = panoramaImageGalleryAdapter
+        } else {
+            imageGalleryAdapter = ImageGalleryAdapter(requireContext(), emptyArray())
+            recyclerView.adapter = imageGalleryAdapter
+            panoramaImageGalleryAdapter = PanoramaImageGalleryAdapter(requireContext(), emptyArray())
+            panoramaRecyclerView.adapter = panoramaImageGalleryAdapter
+        }
 
         val toggleButton = view.findViewById<Button>(R.id.toggle_button)
 
@@ -89,17 +114,22 @@ class tab2Fragment : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
-        recyclerView.adapter = imageGalleryAdapter
-        // 최신 이미지로 스크롤 이동
-        val lastPosition = images.size - 1
-        recyclerView.scrollToPosition(lastPosition)
-
-        panoramaRecyclerView.adapter = panoramaImageGalleryAdapter
-
         return view
     }
-
-
+    
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 권한이 허용됨
+                val images = getImagesFromGallery()
+                imageGalleryAdapter.updateImages(images)
+                panoramaImageGalleryAdapter.updateImages(images)
+            } else {
+                // 권한이 거부됨
+                Toast.makeText(requireContext(), "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     private fun getImagesFromGallery(): Array<Uri> {
         val images = mutableListOf<Uri>()
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -124,7 +154,7 @@ class tab2Fragment : Fragment() {
         return images.toTypedArray()
     }
 
-    private inner class ImageGalleryAdapter(val context: Context, val images: Array<Uri>)
+    private inner class ImageGalleryAdapter(val context: Context, var images: Array<Uri>)
         : RecyclerView.Adapter<ImageGalleryAdapter.MyViewHolder>() {
 
         override fun onCreateViewHolder(
@@ -178,6 +208,11 @@ class tab2Fragment : Fragment() {
             return images.size
         }
 
+        fun updateImages(images: Array<Uri>) {
+            this.images = images
+            notifyDataSetChanged()
+        }
+
         inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
             View.OnClickListener {
 
@@ -211,7 +246,7 @@ class tab2Fragment : Fragment() {
         }
     }
 
-    private inner class PanoramaImageGalleryAdapter(private val context: Context, private val images: Array<Uri>
+    private inner class PanoramaImageGalleryAdapter(private val context: Context, private var images: Array<Uri>
     ) : RecyclerView.Adapter<PanoramaImageGalleryAdapter.MyViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -256,6 +291,11 @@ class tab2Fragment : Fragment() {
 
         override fun getItemCount(): Int {
             return images.size
+        }
+
+        fun updateImages(images: Array<Uri>) {
+            this.images = images
+            notifyDataSetChanged()
         }
 
         inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
