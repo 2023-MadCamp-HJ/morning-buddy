@@ -7,9 +7,10 @@
         android:id="@+id/toggle_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Toggle View"
+        android:text="Panorama"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_images"

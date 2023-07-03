@@ -21,6 +21,7 @@ import java.lang.Float.min
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.core.view.GestureDetectorCompat
+import androidx.viewpager2.widget.ViewPager2
 
 class ImageFragment : Fragment() {
 
@@ -128,11 +129,11 @@ class ImageFragment : Fragment() {
                 }
             }
         )
-
         gestureDetector = GestureDetectorCompat(requireContext(), DoubleTapGestureListener())
         imageView.setOnTouchListener { _, event ->
             scaleGestureDetector.onTouchEvent(event)
             gestureDetector.onTouchEvent(event)
+
             true
         }
     }

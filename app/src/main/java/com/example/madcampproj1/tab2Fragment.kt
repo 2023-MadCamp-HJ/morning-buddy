@@ -2,6 +2,7 @@ package com.example.madcampproj1
 
 import android.content.ContentUris
 import android.content.Context
+import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -64,11 +66,13 @@ class tab2Fragment : Fragment() {
                 recyclerView.visibility = View.VISIBLE
                 panoramaRecyclerView.visibility = View.GONE
                 isPanoramaViewVisible = false
+                toggleButton.text = "Panorama"
             } else if (!isPanoramaViewVisible && isGalleryViewVisible){
                 // Switch to panorama view
                 recyclerView.visibility = View.GONE
                 panoramaRecyclerView.visibility = View.VISIBLE
                 isPanoramaViewVisible = true
+                toggleButton.text = "Gallery"
             }
         }
 
