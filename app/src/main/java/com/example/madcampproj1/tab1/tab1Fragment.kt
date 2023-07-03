@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startActivity
 import com.example.madcampproj1.R
 import com.example.madcampproj1.databinding.ContactItemBinding
+import com.example.madcampproj1.databinding.FragmentTab1Binding
 import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
 
@@ -40,6 +41,9 @@ class tab1Fragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var recyclerView: RecyclerView
+
+    private var _binding: FragmentTab1Binding? = null
+    private val binding get() = _binding!!
  //   private val CONTACTS_PERMISSION_REQUEST = 1
 
     private val contactsList: MutableList<Contact> = mutableListOf()
@@ -48,6 +52,7 @@ class tab1Fragment : Fragment() {
     fun loadContacts() {
         //  val contactsList = ArrayList<String>()
 
+        contactsList.clear()
         val cursor = requireActivity().contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
             null,
@@ -93,8 +98,9 @@ class tab1Fragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_tab1, container, false)
-        recyclerView = view.findViewById(R.id.recyclerView)
+
+        _binding = FragmentTab1Binding.inflate(inflater, container, false)
+        recyclerView=binding.recyclerView
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //            val requestPermissionLauncher = registerForActivityResult(
@@ -169,21 +175,36 @@ class tab1Fragment : Fragment() {
                 fetchContacts()
             }
         }
+        println("reload")
+        binding.refreshButton.setOnClickListener {
+            println("reload")
+            loadContacts()
+            println("reload")
+            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+        }
 
 
-        return view
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+    override fun onResume(){
+        super.onResume()
+        loadContacts()
+        (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
     }
 
     fun fetchContacts() {
 
-        val contactList = mutableListOf<Contact>()
+      //  val contactList = mutableListOf<Contact>()
         val adapter = ContactAdapter(contactsList)
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
         // recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-
     }
 
 }
@@ -199,6 +220,11 @@ data class Contact(
 
 class ContactAdapter(private val contactList: List<Contact>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+
+    fun refresh() {
+
+        notifyDataSetChanged()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
 
