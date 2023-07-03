@@ -41,9 +41,10 @@ class tab1Fragment : Fragment() {
     private val CONTACTS_PERMISSION_REQUEST = 1
 
     private val contactsList: MutableList<Contact> = mutableListOf()
+
     @SuppressLint("Range")
     fun loadContacts() {
-      //  val contactsList = ArrayList<String>()
+        //  val contactsList = ArrayList<String>()
 
         val cursor = requireActivity().contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -52,14 +53,14 @@ class tab1Fragment : Fragment() {
             null,
             null
         )
-        
+
         cursor?.use {
             while (it.moveToNext()) {
                 val name =
                     it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val number =
                     it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                contactsList.add(Contact(name,number))
+                contactsList.add(Contact(name, number))
             }
         }
 
@@ -153,26 +154,31 @@ class tab1Fragment : Fragment() {
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
-       // recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
+        // recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
 
     }
 
 }
+
 data class Contact(
     val name: String,
     val phoneNumber: String
 )
 
 
-class ContactAdapter(private val contactList: List<Contact>) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+class ContactAdapter(private val contactList: List<Contact>) :
+    RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-      //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
+        //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
 
         //contact_item
-        val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return ContactViewHolder(binding)
+        val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ContactViewHolder(binding).also { holder ->
+            binding.contactBox.setOnClickListener {
+                println(holder.adapterPosition)
+            }
+        }
     }
 
     override fun getItemCount() = contactList.size
@@ -181,10 +187,11 @@ class ContactAdapter(private val contactList: List<Contact>) : RecyclerView.Adap
         holder.bind(contactList[position])
     }
 
-    class ContactViewHolder(val binding: ContactItemBinding) :RecyclerView.ViewHolder(binding.root){
-        fun bind(contact:Contact) {
+    class ContactViewHolder(val binding: ContactItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(contact: Contact) {
             binding.name.text = contact.name
-            binding.phoneNumber.text= contact.phoneNumber
+            binding.phoneNumber.text = contact.phoneNumber
         }
     }
 }
