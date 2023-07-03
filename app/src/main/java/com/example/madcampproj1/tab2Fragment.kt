@@ -1,9 +1,13 @@
 package com.example.madcampproj1
 
 import android.Manifest
+import android.app.Activity.RESULT_OK
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
@@ -25,11 +29,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import java.io.IOException
 
 class tab2Fragment : Fragment() {
-    private val REQUEST_CODE = 1
+    private val REQUEST_WRITE_EXTERNAL_STORAGE = 1
+    private val REQUEST_IMAGE_CAPTURE = 2
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewPager: ViewPager2
@@ -43,8 +49,8 @@ class tab2Fragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITE_EXTERNAL_STORAGE)
         }
     }
 
@@ -66,7 +72,7 @@ class tab2Fragment : Fragment() {
         viewPager = view.findViewById(R.id.view_pager)
         viewPager.visibility = View.GONE
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             val images = getImagesFromGallery()
             imageGalleryAdapter = ImageGalleryAdapter(requireContext(), images)
             recyclerView.adapter = imageGalleryAdapter
@@ -114,22 +120,36 @@ class tab2Fragment : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
+        val camera = view.findViewById<FloatingActionButton>(R.id.camera)
+        camera.setOnClickListener {
+            dispatchTakePictureIntent()
+        }
+
         return view
     }
-    
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한이 허용됨
+                // WRITE_EXTERNAL_STORAGE 권한이 허용됨
                 val images = getImagesFromGallery()
                 imageGalleryAdapter.updateImages(images)
                 panoramaImageGalleryAdapter.updateImages(images)
             } else {
-                // 권한이 거부됨
+                // WRITE_EXTERNAL_STORAGE 권한이 거부됨
                 Toast.makeText(requireContext(), "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    private fun dispatchTakePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            }
+        }
+    }
+
     private fun getImagesFromGallery(): Array<Uri> {
         val images = mutableListOf<Uri>()
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -152,6 +172,24 @@ class tab2Fragment : Fragment() {
             }
         }
         return images.toTypedArray()
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            // 여기서 imageBitmap을 사용하여 이미지 갤러리에 추가하는 코드를 작성합니다.
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            val uri = requireActivity().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            if (uri != null) {
+                val outputStream = requireActivity().contentResolver.openOutputStream(uri)
+                if (outputStream != null) {
+                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    outputStream.close()
+                }
+                imageGalleryAdapter.addImage(uri)
+                panoramaImageGalleryAdapter.addImage(uri)
+            }
+        }
     }
 
     private inner class ImageGalleryAdapter(val context: Context, var images: Array<Uri>)
@@ -210,6 +248,11 @@ class tab2Fragment : Fragment() {
 
         fun updateImages(images: Array<Uri>) {
             this.images = images
+            notifyDataSetChanged()
+        }
+
+        fun addImage(uri: Uri) {
+            images += uri
             notifyDataSetChanged()
         }
 
@@ -295,6 +338,11 @@ class tab2Fragment : Fragment() {
 
         fun updateImages(images: Array<Uri>) {
             this.images = images
+            notifyDataSetChanged()
+        }
+
+        fun addImage(uri: Uri) {
+            images += uri
             notifyDataSetChanged()
         }
 
