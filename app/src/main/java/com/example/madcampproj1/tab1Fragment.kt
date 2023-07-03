@@ -1,5 +1,7 @@
 package com.example.madcampproj1
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import androidx.fragment.app.Fragment
@@ -7,8 +9,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+
+import android.Manifest
+import android.annotation.SuppressLint
+import android.widget.ArrayAdapter
+import android.widget.ListView
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,13 +36,60 @@ class tab1Fragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var recyclerView: RecyclerView
+    private val CONTACTS_PERMISSION_REQUEST = 1
 
+    private val contactsList: MutableList<Contact> = mutableListOf()
+    @SuppressLint("Range")
+    fun loadContacts() {
+      //  val contactsList = ArrayList<String>()
+
+        val cursor = requireActivity().contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val name =
+                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val number =
+                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                contactsList.add(Contact(name,number))
+            }
+        }
+
+        cursor?.close()
+        println(contactsList.toString())
+
+//            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, contactsList)
+//            listView.adapter = adapter
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_CONTACTS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.READ_CONTACTS),
+                CONTACTS_PERMISSION_REQUEST
+            )
+
+        } else {
+            // 연락처 권한이 있는 경우 연락처를 가져옵니다.
+            loadContacts()
         }
     }
 
@@ -69,19 +126,21 @@ class tab1Fragment : Fragment() {
     }
 
     fun fetchContacts() {
-        val contactList: MutableList<Contact> = mutableListOf()
 
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
-        contactList.add(Contact("김현수","010-222002"))
 
-        val adapter = ContactAdapter(contactList)
+        val contactList = mutableListOf<Contact>()
+//        println(contactsList);
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+//        contactList.add(Contact("김현수","010-222002"))
+
+        val adapter = ContactAdapter(contactsList)
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
