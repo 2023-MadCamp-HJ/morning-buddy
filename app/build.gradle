@@ -5,6 +5,9 @@ plugins {
 
 android {
     compileSdk 33
+    viewBinding{
+        enabled = true
+    }
 
     defaultConfig {
         applicationId "com.example.madcampproj1"
