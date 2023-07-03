@@ -76,7 +76,7 @@ class tab1Fragment : Fragment() {
 
         cursor?.close()
         println(contactsList.toString())
-
+        contactsList.sortBy { contact -> contact.name }
 //            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, contactsList)
 //            listView.adapter = adapter
     }
