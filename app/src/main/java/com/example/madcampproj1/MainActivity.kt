@@ -23,9 +23,10 @@ class MainActivity : AppCompatActivity() {
 
         // Tab Title 설정
         val tabTitles = listOf("tab1", "tab2", "tab3")
-
+        val tabIcons = listOf(R.drawable.contact, R.drawable.gallery, R.drawable.question)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) {tab, position ->
-            tab.text = tabTitles[position]
+//            tab.text = tabTitles[position]
+            tab.setIcon(tabIcons[position])
         }.attach()
     }
 }

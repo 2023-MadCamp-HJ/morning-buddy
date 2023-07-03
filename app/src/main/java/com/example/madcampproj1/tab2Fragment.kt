@@ -1,9 +1,14 @@
 package com.example.madcampproj1
 
 import android.Manifest
+import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
@@ -25,11 +30,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import java.io.IOException
 
 class tab2Fragment : Fragment() {
-    private val REQUEST_CODE = 1
+    private val REQUEST_WRITE_EXTERNAL_STORAGE = 1
+    private val REQUEST_IMAGE_CAPTURE = 2
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewPager: ViewPager2
@@ -43,8 +50,8 @@ class tab2Fragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_WRITE_EXTERNAL_STORAGE)
         }
     }
 
@@ -66,7 +73,7 @@ class tab2Fragment : Fragment() {
         viewPager = view.findViewById(R.id.view_pager)
         viewPager.visibility = View.GONE
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             val images = getImagesFromGallery()
             imageGalleryAdapter = ImageGalleryAdapter(requireContext(), images)
             recyclerView.adapter = imageGalleryAdapter
@@ -114,22 +121,36 @@ class tab2Fragment : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
 
+        val camera = view.findViewById<FloatingActionButton>(R.id.camera)
+        camera.setOnClickListener {
+            dispatchTakePictureIntent()
+        }
+
         return view
     }
-    
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 권한이 허용됨
+                // WRITE_EXTERNAL_STORAGE 권한이 허용됨
                 val images = getImagesFromGallery()
                 imageGalleryAdapter.updateImages(images)
                 panoramaImageGalleryAdapter.updateImages(images)
             } else {
-                // 권한이 거부됨
+                // WRITE_EXTERNAL_STORAGE 권한이 거부됨
                 Toast.makeText(requireContext(), "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    private fun dispatchTakePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            }
+        }
+    }
+
     private fun getImagesFromGallery(): Array<Uri> {
         val images = mutableListOf<Uri>()
         val projection = arrayOf(MediaStore.Images.Media._ID)
@@ -152,6 +173,24 @@ class tab2Fragment : Fragment() {
             }
         }
         return images.toTypedArray()
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as Bitmap
+            // 여기서 imageBitmap을 사용하여 이미지 갤러리에 추가하는 코드를 작성합니다.
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            val uri = requireActivity().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            if (uri != null) {
+                val outputStream = requireActivity().contentResolver.openOutputStream(uri)
+                if (outputStream != null) {
+                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    outputStream.close()
+                }
+                imageGalleryAdapter.addImage(uri)
+                panoramaImageGalleryAdapter.addImage(uri)
+            }
+        }
     }
 
     private inner class ImageGalleryAdapter(val context: Context, var images: Array<Uri>)
@@ -213,13 +252,29 @@ class tab2Fragment : Fragment() {
             notifyDataSetChanged()
         }
 
+        fun addImage(uri: Uri) {
+            images += uri
+            notifyDataSetChanged()
+        }
+
         inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-            View.OnClickListener {
+            View.OnClickListener, View.OnLongClickListener {
 
             var photoImageView: ImageView = itemView.findViewById(R.id.iv_photo)
 
             init {
                 itemView.setOnClickListener(this)
+                itemView.setOnLongClickListener(this)
+            }
+
+            override fun onLongClick(view: View): Boolean {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val imageUri = images[position]
+                    showDeleteConfirmationDialog(imageUri, position)
+                    return true
+                }
+                return false
             }
 
             override fun onClick(view: View) {
@@ -233,6 +288,28 @@ class tab2Fragment : Fragment() {
                     viewPager.adapter = ScreenSlidePagerAdapter(requireActivity(), images)
 
                     viewPager.setCurrentItem(position, false)
+                }
+            }
+
+            private fun showDeleteConfirmationDialog(imageUri: Uri, position: Int) {
+                val alertDialogBuilder = AlertDialog.Builder(context)
+                alertDialogBuilder.setMessage("이미지를 삭제하시겠습니까?")
+                alertDialogBuilder.setPositiveButton("삭제") { _, _ ->
+                    deleteImage(imageUri, position)
+                }
+                alertDialogBuilder.setNegativeButton("취소", null)
+                val alertDialog = alertDialogBuilder.create()
+                alertDialog.show()
+            }
+
+            private fun deleteImage(imageUri: Uri, position: Int) {
+                val deleted = context.contentResolver.delete(imageUri, null, null)
+                if (deleted > 0) {
+                    images = images.filterIndexed { index, _ -> index != position }.toTypedArray()
+                    notifyItemRemoved(position)
+                    Toast.makeText(context, "삭제 완료", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -295,6 +372,11 @@ class tab2Fragment : Fragment() {
 
         fun updateImages(images: Array<Uri>) {
             this.images = images
+            notifyDataSetChanged()
+        }
+
+        fun addImage(uri: Uri) {
+            images += uri
             notifyDataSetChanged()
         }
 
