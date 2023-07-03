@@ -2,6 +2,7 @@ package com.example.madcampproj1
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
@@ -257,12 +258,23 @@ class tab2Fragment : Fragment() {
         }
 
         inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-            View.OnClickListener {
+            View.OnClickListener, View.OnLongClickListener {
 
             var photoImageView: ImageView = itemView.findViewById(R.id.iv_photo)
 
             init {
                 itemView.setOnClickListener(this)
+                itemView.setOnLongClickListener(this)
+            }
+
+            override fun onLongClick(view: View): Boolean {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val imageUri = images[position]
+                    showDeleteConfirmationDialog(imageUri, position)
+                    return true
+                }
+                return false
             }
 
             override fun onClick(view: View) {
@@ -276,6 +288,28 @@ class tab2Fragment : Fragment() {
                     viewPager.adapter = ScreenSlidePagerAdapter(requireActivity(), images)
 
                     viewPager.setCurrentItem(position, false)
+                }
+            }
+
+            private fun showDeleteConfirmationDialog(imageUri: Uri, position: Int) {
+                val alertDialogBuilder = AlertDialog.Builder(context)
+                alertDialogBuilder.setMessage("이미지를 삭제하시겠습니까?")
+                alertDialogBuilder.setPositiveButton("삭제") { _, _ ->
+                    deleteImage(imageUri, position)
+                }
+                alertDialogBuilder.setNegativeButton("취소", null)
+                val alertDialog = alertDialogBuilder.create()
+                alertDialog.show()
+            }
+
+            private fun deleteImage(imageUri: Uri, position: Int) {
+                val deleted = context.contentResolver.delete(imageUri, null, null)
+                if (deleted > 0) {
+                    images = images.filterIndexed { index, _ -> index != position }.toTypedArray()
+                    notifyItemRemoved(position)
+                    Toast.makeText(context, "삭제 완료", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "삭제 실패", Toast.LENGTH_SHORT).show()
                 }
             }
         }
