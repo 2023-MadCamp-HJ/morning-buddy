@@ -2,12 +2,19 @@ package com.example.madcampproj1.tab1
 
 import android.annotation.SuppressLint
 import android.content.ContentProviderOperation
+import android.content.ContentProviderResult
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.OperationApplicationException
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.RemoteException
 import android.provider.ContactsContract
+import android.util.Log
 import com.example.madcampproj1.R
 import com.example.madcampproj1.databinding.ActivityMainBinding
 import com.example.madcampproj1.databinding.ActivityTab1EditBinding
@@ -24,6 +31,74 @@ class Tab1EditActivity : AppCompatActivity() {
         //binding.textView.text="gdg"
         binding.buttonTest.setOnClickListener {
             println("Click!")
+            var intent = getIntent()
+            var test = intent.getStringExtra("test")
+            var contact = intent.getParcelableExtra<Contact>("contactInfo")
+            // var contact = intent.getSerializableExtra("contactInfo")
+            println(contact!!.id)
+            println(test.toString())
+            // getPhoneNumberFromContactId(this,contact!!.id)
+            updatePhoneNumberForContactId(this, contact!!.id, "0101010101")
+            // updateContact(this,contact!!.id,"김현수","010")
+        }
+    }
+
+    @SuppressLint("Range")
+    fun getPhoneNumberFromContactId(context: Context, contactId: Long): String? {
+        val contentResolver: ContentResolver = context.contentResolver
+        val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
+        val selection = (
+                "${ContactsContract.Data.CONTACT_ID} = ? AND " +
+                        "${ContactsContract.Data.MIMETYPE} = '${ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE}'"
+                )
+        val selectionArgs = arrayOf(contactId.toString())
+
+        val cursor = contentResolver.query(
+            ContactsContract.Data.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        var phoneNumber: String? = null
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                phoneNumber =
+                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            }
+        }
+
+        if (phoneNumber == null) {
+            Log.w("ContactUtils", "No phone number found for contact id $contactId")
+        }
+        println(phoneNumber)
+        return phoneNumber
+    }
+
+    fun updatePhoneNumberForContactId(context: Context, contactId: Long, newPhoneNumber: String) {
+        val contentResolver: ContentResolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(ContactsContract.CommonDataKinds.Phone.NUMBER, newPhoneNumber)
+        }
+        val selection = (
+                "${ContactsContract.Data.CONTACT_ID} = ? AND " +
+                        "${ContactsContract.Data.MIMETYPE} = '${ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE}'"
+                )
+        val selectionArgs = arrayOf(contactId.toString())
+
+        val updatedRows = contentResolver.update(
+            ContactsContract.Data.CONTENT_URI,
+            contentValues,
+            selection,
+            selectionArgs
+        )
+
+        if (updatedRows > 0) {
+            Log.d("ContactUtils", "Phone number updated for contact id $contactId")
+        } else {
+            Log.w("ContactUtils", "Failed to update phone number for contact id $contactId")
         }
     }
 }
@@ -46,8 +121,10 @@ fun updateContact(context: Context, oldName: String, newName: String, newNumber:
     }
 
     // 연락처 이름 변경
-    val where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"
-    val nameParams = arrayOf(phoneContactID, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+    val where =
+        ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"
+    val nameParams =
+        arrayOf(phoneContactID, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
     ops.add(
         ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
             .withSelection(where, nameParams)
@@ -56,7 +133,8 @@ fun updateContact(context: Context, oldName: String, newName: String, newNumber:
     )
 
     // 연락처 번호 변경
-    val numberParams = arrayOf(phoneContactID, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+    val numberParams =
+        arrayOf(phoneContactID, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
     ops.add(
         ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
             .withSelection(where, numberParams)

@@ -14,9 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Parcelable
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat.startActivity
 import com.example.madcampproj1.R
 import com.example.madcampproj1.databinding.ContactItemBinding
+import kotlinx.android.parcel.Parcelize
+import java.io.Serializable
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -35,7 +40,7 @@ class tab1Fragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var recyclerView: RecyclerView
-    private val CONTACTS_PERMISSION_REQUEST = 1
+ //   private val CONTACTS_PERMISSION_REQUEST = 1
 
     private val contactsList: MutableList<Contact> = mutableListOf()
 
@@ -53,11 +58,14 @@ class tab1Fragment : Fragment() {
 
         cursor?.use {
             while (it.moveToNext()) {
+                val id =
+                    it.getLong(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+
                 val name =
                     it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val number =
                     it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                contactsList.add(Contact(name, number))
+                contactsList.add(Contact(id, name, number))
             }
         }
 
@@ -88,12 +96,43 @@ class tab1Fragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_tab1, container, false)
         recyclerView = view.findViewById(R.id.recyclerView)
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            val requestPermissionLauncher = registerForActivityResult(
+//                ActivityResultContracts.RequestPermission()
+//            ) { isGranted ->
+//                if (isGranted) {
+//                    println("BBBBB")
+//                    loadContacts()
+//                    fetchContacts()
+//                } else {
+//                    println("CCCCC")
+//                    // 권한이 거부된 경우 다른 처리를 수행할 수 있습니다.
+//                    // 예를 들어, 사용자에게 권한 필요성에 대해 알리는 메시지를 보여주는 등
+//                }
+//            }
+//
+//            // 연락처 권한이 없는 경우 권한을 요청합니다.
+//            if (ContextCompat.checkSelfPermission(
+//                    requireContext(),
+//                    Manifest.permission.READ_CONTACTS
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                println("DDDDD")
+//                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+//            } else {
+//                // 연락처 권한이 이미 있는 경우 바로 연락처를 불러옵니다.
+//                println("EEEEEE")
+//                loadContacts()
+//                fetchContacts()
+//            }
+//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val requestPermissionLauncher = registerForActivityResult(
-                ActivityResultContracts.RequestPermission()
-            ) { isGranted ->
-                if (isGranted) {
-                    // 권한이 허가된 경우 연락처를 불러옵니다.
+            val requestPermissionsLauncher = registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions()
+            ) { permissions ->
+                // 사용자가 모든 권한을 수락했는지 확인합니다.
+                val allPermissionsGranted = permissions.all { it.value }
+                if (allPermissionsGranted) {
                     println("BBBBB")
                     loadContacts()
                     fetchContacts()
@@ -105,13 +144,24 @@ class tab1Fragment : Fragment() {
             }
 
             // 연락처 권한이 없는 경우 권한을 요청합니다.
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.READ_CONTACTS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            val readContactsGranted = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            val writeContactsGranted = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.WRITE_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!readContactsGranted || !writeContactsGranted) {
                 println("DDDDD")
-                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                requestPermissionsLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.WRITE_CONTACTS
+                    )
+                )
             } else {
                 // 연락처 권한이 이미 있는 경우 바로 연락처를 불러옵니다.
                 println("EEEEEE")
@@ -120,10 +170,11 @@ class tab1Fragment : Fragment() {
             }
         }
 
+
         return view
     }
-    fun fetchContacts() {
 
+    fun fetchContacts() {
 
         val contactList = mutableListOf<Contact>()
         val adapter = ContactAdapter(contactsList)
@@ -137,11 +188,14 @@ class tab1Fragment : Fragment() {
 
 }
 
+
+
+@Parcelize
 data class Contact(
+    val id: Long,
     val name: String,
     val phoneNumber: String
-)
-
+): Parcelable
 
 class ContactAdapter(private val contactList: List<Contact>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
@@ -152,7 +206,15 @@ class ContactAdapter(private val contactList: List<Contact>) :
         val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ContactViewHolder(binding).also { holder ->
             binding.contactBox.setOnClickListener {
-                println(holder.adapterPosition)
+                val position=holder.adapterPosition
+                println(contactList[position].id)
+                println(contactList[position].name)
+                println(contactList[position].phoneNumber)
+                val intent:Intent = Intent(parent.context,Tab1EditActivity::class.java)
+                intent.putExtra("contactInfo",contactList[position])
+                intent.putExtra("test","AAA")
+                startActivity(parent.context, intent, null)
+
             }
         }
     }
