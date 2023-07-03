@@ -18,6 +18,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.activity.result.contract.ActivityResultContracts
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -50,7 +51,7 @@ class tab1Fragment : Fragment() {
             null,
             null
         )
-
+        
         cursor?.use {
             while (it.moveToNext()) {
                 val name =
@@ -75,22 +76,9 @@ class tab1Fragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_CONTACTS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.READ_CONTACTS),
-                CONTACTS_PERMISSION_REQUEST
-            )
+        // 기존 코드의 일부를 재사용하여 권한 요청을 위한 준비를 합니다.
 
-        } else {
-            // 연락처 권한이 있는 경우 연락처를 가져옵니다.
-            loadContacts()
-        }
+
     }
 
     override fun onCreateView(
@@ -100,7 +88,38 @@ class tab1Fragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_tab1, container, false)
         recyclerView = view.findViewById(R.id.recyclerView)
-        fetchContacts()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val requestPermissionLauncher = registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted ->
+                if (isGranted) {
+                    // 권한이 허가된 경우 연락처를 불러옵니다.
+                    println("BBBBB")
+                    loadContacts()
+                    fetchContacts()
+                } else {
+                    println("CCCCC")
+                    // 권한이 거부된 경우 다른 처리를 수행할 수 있습니다.
+                    // 예를 들어, 사용자에게 권한 필요성에 대해 알리는 메시지를 보여주는 등
+                }
+            }
+
+            // 연락처 권한이 없는 경우 권한을 요청합니다.
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_CONTACTS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                println("DDDDD")
+                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            } else {
+                // 연락처 권한이 이미 있는 경우 바로 연락처를 불러옵니다.
+                println("EEEEEE")
+                loadContacts()
+                fetchContacts()
+            }
+        }
 
         return view
     }
