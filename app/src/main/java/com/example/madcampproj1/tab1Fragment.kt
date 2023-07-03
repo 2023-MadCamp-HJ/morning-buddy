@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.madcampproj1.databinding.ContactItemBinding
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -148,17 +149,6 @@ class tab1Fragment : Fragment() {
 
 
         val contactList = mutableListOf<Contact>()
-//        println(contactsList);
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-//        contactList.add(Contact("김현수","010-222002"))
-
         val adapter = ContactAdapter(contactsList)
 
         recyclerView.adapter = adapter
@@ -174,21 +164,27 @@ data class Contact(
     val name: String,
     val phoneNumber: String
 )
-class ContactViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val name = view.findViewById<TextView>(R.id.name)
-    val phoneNumber = view.findViewById<TextView>(R.id.phoneNumber)
-}
 
-class ContactAdapter(private val contactList: List<Contact>) : RecyclerView.Adapter<ContactViewHolder>() {
+
+class ContactAdapter(private val contactList: List<Contact>) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
-        return ContactViewHolder(view)
+      //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
+
+        //contact_item
+        val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        return ContactViewHolder(binding)
     }
 
     override fun getItemCount() = contactList.size
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        holder.name.text = contactList[position].name
-        holder.phoneNumber.text = contactList[position].phoneNumber
+        holder.bind(contactList[position])
+    }
+
+    class ContactViewHolder(val binding: ContactItemBinding) :RecyclerView.ViewHolder(binding.root){
+        fun bind(contact:Contact) {
+            binding.name.text = contact.name
+            binding.phoneNumber.text= contact.phoneNumber
+        }
     }
 }
