@@ -3,6 +3,7 @@ package com.example.madcampproj1
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.madcampproj1.databinding.ActivityMainBinding
+import com.example.madcampproj1.tab1.tab1Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
