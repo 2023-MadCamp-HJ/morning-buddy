@@ -4,14 +4,15 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/toggle_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Panorama"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="20dp" />
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"
+        android:background="#FFCE00"
+        android:src="@drawable/film" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_images"
@@ -43,9 +44,10 @@
         android:id="@+id/camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@id/toggle_button"
         android:layout_alignParentEnd="true"
-        android:layout_margin="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="0dp"
         android:src="@drawable/ic_camera"
         app:backgroundTint="#FFFFFF" />
 
