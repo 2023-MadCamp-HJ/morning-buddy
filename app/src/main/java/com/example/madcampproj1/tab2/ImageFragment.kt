@@ -1,4 +1,4 @@
-package com.example.madcampproj1
+package com.example.madcampproj1.tab2
 
 import android.graphics.drawable.BitmapDrawable
 import android.support.media.ExifInterface
@@ -21,7 +21,7 @@ import java.lang.Float.min
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.core.view.GestureDetectorCompat
-import androidx.viewpager2.widget.ViewPager2
+import com.example.madcampproj1.R
 
 class ImageFragment : Fragment() {
 

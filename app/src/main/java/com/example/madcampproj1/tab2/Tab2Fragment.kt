@@ -1,4 +1,4 @@
-package com.example.madcampproj1
+package com.example.madcampproj1.tab2
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
@@ -18,9 +17,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
@@ -30,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.example.madcampproj1.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import java.io.IOException
@@ -117,7 +115,7 @@ class tab2Fragment : Fragment() {
 
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!isGalleryViewVisible || !isPanoramaViewVisible) {
+                if (!isGalleryViewVisible && !isPanoramaViewVisible) {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.GONE
                     isGalleryViewVisible = true
@@ -206,7 +204,7 @@ class tab2Fragment : Fragment() {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
-        ): ImageGalleryAdapter.MyViewHolder {
+        ): MyViewHolder {
             val context = parent.context
             val inflater = LayoutInflater.from(context)
             val photoView = inflater.inflate(R.layout.item_image, parent, false)
@@ -217,7 +215,7 @@ class tab2Fragment : Fragment() {
             return MyViewHolder(photoView)
         }
 
-        override fun onBindViewHolder(holder: ImageGalleryAdapter.MyViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
             val uri = images[position]
             val imageView = holder.photoImageView
 
