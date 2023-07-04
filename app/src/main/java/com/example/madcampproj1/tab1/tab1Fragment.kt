@@ -16,6 +16,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Parcelable
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startActivity
 import com.example.madcampproj1.R
@@ -49,66 +51,6 @@ class tab1Fragment : Fragment() {
 
     private val contactsList: MutableList<Contact> = mutableListOf()
     private val temp: MutableList<Contact> = mutableListOf()
-
-    @SuppressLint("Range")
-    fun loadContacts() {
-        //  val contactsList = ArrayList<String>()
-
-        contactsList.clear()
-        val cursor = requireActivity().contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            null,
-            null,
-            null,
-            null
-        )
-
-        cursor?.use {
-            while (it.moveToNext()) {
-                val id =
-                    it.getLong(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
-
-                val name =
-                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val number =
-                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                contactsList.add(Contact(id, name, number))
-            }
-        }
-
-        cursor?.close()
-        println(contactsList.toString())
-        contactsList.sortBy { contact -> contact.name }
-
-        temp.clear()
-
-       //contactsList.add(Contact(-1, "2", "3"))
-        if (contactsList.isEmpty()) {
-            temp.add(Contact(-1, contactsList[0].name.first().toString(), "3"))
-            temp.add(contactsList[0])
-        }
-        for(i in 1 until contactsList.size){
-            val currentContact = contactsList[i]
-            val previousContact = contactsList[i - 1]
-            if(previousContact.name.first()!=currentContact.name.first()){
-
-                temp.add(Contact(-1, currentContact.name.first().toString(), "3"))
-
-            }
-            else {
-                print("AAA")
-            }
-            temp.add(currentContact)
-        }
-        contactsList.clear()
-        for(i in 0 until temp.size){
-            contactsList.add(temp[i])
-        }
-//
-//        contactsList = temp.toMutableList()
-//        contactsList.clear()
-//        print(contactsList.toString())
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -182,6 +124,25 @@ class tab1Fragment : Fragment() {
             val intent = Intent(activity, Tab1AddActivity::class.java)
             startActivity(intent)
         }
+        binding.searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                // 텍스트가 변경되기 전에 호출됩니다.
+                // 이 메소드에서는 변경되기 전의 텍스트를 확인할 수 있습니다.
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                // 텍스트가 변경되는 동안에 호출됩니다.
+                // 이 메소드에서는 텍스트가 어떻게 변경되고 있는지 확인할 수 있습니다.
+                println("s: $s, start: $start, before: $before, count: $count")
+                loadContacts(s.toString())
+                (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+            }
+
+            override fun afterTextChanged(s: Editable) {
+                // 텍스트가 변경된 후에 호출됩니다.
+                // 이 메소드에서는 최종적으로 어떤 텍스트가 입력되었는지 확인할 수 있습니다.
+            }
+        })
 
 
         return binding.root
@@ -204,6 +165,84 @@ class tab1Fragment : Fragment() {
         }
     }
 
+    @SuppressLint("Range")
+    fun loadContacts(stringFilter: String = "") {
+        //  val contactsList = ArrayList<String>()
+
+        contactsList.clear()
+        val cursor = requireActivity().contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val id =
+                    it.getLong(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                val name =
+                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val number =
+                    it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                contactsList.add(Contact(id, name, number))
+            }
+        }
+
+        cursor?.close()
+        println(contactsList.toString())
+        println(stringFilter)
+        contactsList.sortBy { contact -> contact.name }
+        val filteredList = contactsList.filter { contact ->
+            stringFilter == "" || contact.name.contains(stringFilter) || contact.phoneNumber.contains(
+                stringFilter
+            )
+        }
+
+        contactsList.clear()  // contactsList의 모든 요소를 제거
+        contactsList.addAll(filteredList)  //
+        println(contactsList.toString())
+        temp.clear()
+
+        //contactsList.add(Contact(-1, "2", "3"))
+        if (!contactsList.isEmpty()) {
+            temp.add(Contact(-1, contactsList[0].name.first().toString(), "3"))
+            temp.add(contactsList[0])
+        }
+        for (i in 1 until contactsList.size) {
+//            val currentContact = contactsList[i]
+//            val previousContact = contactsList[i - 1]
+//            if (extractInitialSound( previousContact.name).first().toString() != extractInitialSound(currentContact.name).first().toString()) {
+//
+//                temp.add(Contact(-1, extractInitialSound(currentContact.name).first().toString(), "3"))
+//
+//            } else {
+//                print("AAA")
+//            }
+
+            val currentContact = contactsList[i]
+            val previousContact = contactsList[i - 1]
+            if (previousContact.name.first() != currentContact.name.first()) {
+
+                temp.add(Contact(-1, currentContact.name.first().toString(), "3"))
+
+            } else {
+                print("AAA")
+            }
+            temp.add(currentContact)
+        }
+        contactsList.clear()
+        for (i in 0 until temp.size) {
+            contactsList.add(temp[i])
+        }
+        println(contactsList.toString())
+//
+//        contactsList = temp.toMutableList()
+//        contactsList.clear()
+//        print(contactsList.toString())
+    }
+
     fun fetchContacts() {
 
         //  val contactList = mutableListOf<Contact>()
@@ -214,6 +253,27 @@ class tab1Fragment : Fragment() {
         // recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
 }
+
+fun Char.isHangul(): Boolean {
+    val unicodeValue = this.toInt()
+    return unicodeValue in 0xAC00..0xD7A3
+}
+
+fun extractInitialSound(str: String): String {
+    val initialSound = StringBuilder()
+
+    for (char in str) {
+        if (char.isLetter() && char.isHangul()) {
+            val unicodeValue = char.toInt() - 0xAC00
+            val initialIndex = unicodeValue / (21 * 28)
+            val initialUnicode = initialIndex + 0x1100
+            initialSound.append(initialUnicode.toChar())
+        }
+    }
+
+    return initialSound.toString()
+}
+
 @Parcelize
 data class Contact(
     val id: Long,
@@ -231,10 +291,9 @@ class ContactAdapter(private val contactList: List<Contact>) :
 
     override fun getItemViewType(position: Int): Int {
 
-        if(contactList[position].id == -1L ) {
+        if (contactList[position].id == -1L) {
             return 0
-        }
-        else{
+        } else {
             return 1
         }
     }
@@ -243,18 +302,16 @@ class ContactAdapter(private val contactList: List<Contact>) :
         //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
 
         //contact_item
-        if(viewType==0){
-            val binding  = LineItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        if (viewType == 0) {
+            val binding =
+                LineItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return LineViewHolder(binding)
-        }
-        else {
-            val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        } else {
+            val binding =
+                ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return ContactViewHolder(binding).also { holder ->
                 binding.contactBox.setOnClickListener {
                     val position = holder.adapterPosition
-                    println(contactList[position].id)
-                    println(contactList[position].name)
-                    println(contactList[position].phoneNumber)
                     val intent: Intent = Intent(parent.context, Tab1EditActivity::class.java)
                     intent.putExtra("contactInfo", contactList[position])
                     intent.putExtra("test", "AAA")
@@ -268,8 +325,8 @@ class ContactAdapter(private val contactList: List<Contact>) :
     override fun getItemCount() = contactList.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-     //   holder.bind(contactList[position])
-        when(holder){
+        //   holder.bind(contactList[position])
+        when (holder) {
             is ContactViewHolder -> holder.bind(contactList[position])
             is LineViewHolder -> holder.bind(contactList[position])
         }
@@ -282,9 +339,10 @@ class ContactAdapter(private val contactList: List<Contact>) :
             binding.phoneNumber.text = contact.phoneNumber
         }
     }
-    class LineViewHolder(val binding: LineItemBinding):
-        RecyclerView.ViewHolder(binding.root){
-        fun bind(contact: Contact){
+
+    class LineViewHolder(val binding: LineItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(contact: Contact) {
             binding.indicateText.text = contact.name
         }
     }
