@@ -26,23 +26,9 @@ import com.example.madcampproj1.databinding.FragmentTab1Binding
 import com.example.madcampproj1.databinding.LineItemBinding
 import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
-
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [tab1Fragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+import java.util.Locale
 
 class tab1Fragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
     private lateinit var recyclerView: RecyclerView
 
     private var _binding: FragmentTab1Binding? = null
@@ -54,19 +40,10 @@ class tab1Fragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-
-        // 기존 코드의 일부를 재사용하여 권한 요청을 위한 준비를 합니다.
-
-
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
 
@@ -79,11 +56,10 @@ class tab1Fragment : Fragment() {
                 // 사용자가 모든 권한을 수락했는지 확인합니다.
                 val allPermissionsGranted = permissions.all { it.value }
                 if (allPermissionsGranted) {
-                    println("BBBBB")
+
                     loadContacts()
                     fetchContacts()
                 } else {
-                    println("CCCCC")
                     // 권한이 거부된 경우 다른 처리를 수행할 수 있습니다.
                     // 예를 들어, 사용자에게 권한 필요성에 대해 알리는 메시지를 보여주는 등
                 }
@@ -91,36 +67,26 @@ class tab1Fragment : Fragment() {
 
             // 연락처 권한이 없는 경우 권한을 요청합니다.
             val readContactsGranted = ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_CONTACTS
+                requireContext(), Manifest.permission.READ_CONTACTS
             ) == PackageManager.PERMISSION_GRANTED
 
             val writeContactsGranted = ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.WRITE_CONTACTS
+                requireContext(), Manifest.permission.WRITE_CONTACTS
             ) == PackageManager.PERMISSION_GRANTED
 
             if (!readContactsGranted || !writeContactsGranted) {
-                println("DDDDD")
                 requestPermissionsLauncher.launch(
                     arrayOf(
-                        Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.WRITE_CONTACTS
+                        Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS
                     )
                 )
             } else {
                 // 연락처 권한이 이미 있는 경우 바로 연락처를 불러옵니다.
-                println("EEEEEE")
                 loadContacts()
                 fetchContacts()
             }
         }
-        println("reload")
         binding.refreshButton.setOnClickListener {
-//            println("reload")
-//            loadContacts()
-//            println("reload")
-//            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
             val intent = Intent(activity, Tab1AddActivity::class.java)
             startActivity(intent)
         }
@@ -133,7 +99,6 @@ class tab1Fragment : Fragment() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 // 텍스트가 변경되는 동안에 호출됩니다.
                 // 이 메소드에서는 텍스트가 어떻게 변경되고 있는지 확인할 수 있습니다.
-                println("s: $s, start: $start, before: $before, count: $count")
                 loadContacts(s.toString())
                 (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
             }
@@ -156,8 +121,7 @@ class tab1Fragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_CONTACTS
+                requireContext(), Manifest.permission.READ_CONTACTS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             loadContacts()
@@ -171,11 +135,7 @@ class tab1Fragment : Fragment() {
 
         contactsList.clear()
         val cursor = requireActivity().contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            null,
-            null,
-            null,
-            null
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null
         )
 
         cursor?.use {
@@ -191,44 +151,50 @@ class tab1Fragment : Fragment() {
         }
 
         cursor?.close()
-        println(contactsList.toString())
-        println(stringFilter)
+
         contactsList.sortBy { contact -> contact.name }
-        val filteredList = contactsList.filter { contact ->
-            stringFilter == "" || contact.name.contains(stringFilter) || contact.phoneNumber.contains(
-                stringFilter
-            )
+
+
+        val filteredList = mutableListOf<Contact>()
+        if (stringFilter == "") {
+            filteredList.addAll(contactsList)
+        } else {
+            val lowerCaseFilter = stringFilter.toLowerCase(Locale.getDefault())
+            for (contact in contactsList) {
+                val lowerCaseName = contact.name.toLowerCase(Locale.getDefault())
+                val chosungName = getChosung(lowerCaseName)
+                if (lowerCaseName.contains(lowerCaseFilter) || chosungName.contains(lowerCaseFilter) || contact.phoneNumber.contains(
+                        lowerCaseFilter
+                    )
+                ) {
+                    filteredList.add(contact)
+                }
+            }
         }
 
         contactsList.clear()  // contactsList의 모든 요소를 제거
         contactsList.addAll(filteredList)  //
-        println(contactsList.toString())
         temp.clear()
 
         //contactsList.add(Contact(-1, "2", "3"))
-        if (!contactsList.isEmpty()) {
-            temp.add(Contact(-1, contactsList[0].name.first().toString(), "3"))
-            temp.add(contactsList[0])
-        }
-        for (i in 1 until contactsList.size) {
-//            val currentContact = contactsList[i]
-//            val previousContact = contactsList[i - 1]
-//            if (extractInitialSound( previousContact.name).first().toString() != extractInitialSound(currentContact.name).first().toString()) {
-//
-//                temp.add(Contact(-1, extractInitialSound(currentContact.name).first().toString(), "3"))
-//
-//            } else {
-//                print("AAA")
-//            }
 
+        for (i in 0 until contactsList.size) {
             val currentContact = contactsList[i]
-            val previousContact = contactsList[i - 1]
-            if (previousContact.name.first() != currentContact.name.first()) {
+            val currentFirstChar = getChosung(currentContact.name)[0]
+            if (i == 0) {
+                temp.add(Contact(-1, currentFirstChar.toString(), "3"))
 
-                temp.add(Contact(-1, currentContact.name.first().toString(), "3"))
+                temp.add(currentContact)
+                continue
+            }
+            val previousContact = contactsList[i - 1]
+
+            val previousFirstChar = getChosung(previousContact.name)[0]
+            if (currentFirstChar != previousFirstChar) {
+
+                temp.add(Contact(-1, currentFirstChar.toString(), "3"))
 
             } else {
-                print("AAA")
             }
             temp.add(currentContact)
         }
@@ -236,12 +202,22 @@ class tab1Fragment : Fragment() {
         for (i in 0 until temp.size) {
             contactsList.add(temp[i])
         }
-        println(contactsList.toString())
-//
-//        contactsList = temp.toMutableList()
-//        contactsList.clear()
-//        print(contactsList.toString())
     }
+
+    fun getChosung(value: String): String {
+        val chosung = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ"
+        val result = StringBuilder()
+        for (i in value.indices) {
+            val code = value[i].toInt() - 44032
+            if (code in 0..11171) {
+                result.append(chosung[code / 588]) // 초성 추출
+            } else {
+                result.append(value[i]) // 한글이 아닌 경우 그대로 출력
+            }
+        }
+        return result.toString()
+    }
+
 
     fun fetchContacts() {
 
@@ -276,9 +252,7 @@ fun extractInitialSound(str: String): String {
 
 @Parcelize
 data class Contact(
-    val id: Long,
-    val name: String,
-    val phoneNumber: String
+    val id: Long, val name: String, val phoneNumber: String
 ) : Parcelable
 
 class ContactAdapter(private val contactList: List<Contact>) :
@@ -340,8 +314,7 @@ class ContactAdapter(private val contactList: List<Contact>) :
         }
     }
 
-    class LineViewHolder(val binding: LineItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class LineViewHolder(val binding: LineItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(contact: Contact) {
             binding.indicateText.text = contact.name
         }
