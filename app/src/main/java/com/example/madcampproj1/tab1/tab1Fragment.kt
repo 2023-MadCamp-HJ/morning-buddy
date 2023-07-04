@@ -14,11 +14,15 @@ import androidx.recyclerview.widget.RecyclerView
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
 import com.example.madcampproj1.R
 import com.example.madcampproj1.databinding.ContactItemBinding
@@ -108,10 +112,20 @@ class tab1Fragment : Fragment() {
                 // 이 메소드에서는 최종적으로 어떤 텍스트가 입력되었는지 확인할 수 있습니다.
             }
         })
-
+        binding.searchInput.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val imm =
+                    context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(v.windowToken, 0)
+                true
+            } else {
+                false
+            }
+        }
 
         return binding.root
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
