@@ -101,37 +101,6 @@ class tab1Fragment : Fragment() {
 
         _binding = FragmentTab1Binding.inflate(inflater, container, false)
         recyclerView=binding.recyclerView
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            val requestPermissionLauncher = registerForActivityResult(
-//                ActivityResultContracts.RequestPermission()
-//            ) { isGranted ->
-//                if (isGranted) {
-//                    println("BBBBB")
-//                    loadContacts()
-//                    fetchContacts()
-//                } else {
-//                    println("CCCCC")
-//                    // 권한이 거부된 경우 다른 처리를 수행할 수 있습니다.
-//                    // 예를 들어, 사용자에게 권한 필요성에 대해 알리는 메시지를 보여주는 등
-//                }
-//            }
-//
-//            // 연락처 권한이 없는 경우 권한을 요청합니다.
-//            if (ContextCompat.checkSelfPermission(
-//                    requireContext(),
-//                    Manifest.permission.READ_CONTACTS
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) {
-//                println("DDDDD")
-//                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
-//            } else {
-//                // 연락처 권한이 이미 있는 경우 바로 연락처를 불러옵니다.
-//                println("EEEEEE")
-//                loadContacts()
-//                fetchContacts()
-//            }
-//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val requestPermissionsLauncher = registerForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
@@ -177,10 +146,14 @@ class tab1Fragment : Fragment() {
         }
         println("reload")
         binding.refreshButton.setOnClickListener {
-            println("reload")
-            loadContacts()
-            println("reload")
-            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+//            println("reload")
+//            loadContacts()
+//            println("reload")
+//            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+            val intent = Intent(activity, Tab1AddActivity::class.java)
+            intent.
+            startActivity(intent)
+
         }
 
 
