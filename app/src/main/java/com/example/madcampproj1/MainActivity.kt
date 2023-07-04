@@ -23,11 +23,11 @@ class MainActivity : AppCompatActivity() {
         binding.viewPager.isUserInputEnabled = false
 
         // Tab Title 설정
-        val tabTitles = listOf("tab1", "tab2", "tab3")
-        val tabIcons = listOf(R.drawable.contact, R.drawable.gallery, R.drawable.question)
+        val tabTitles = listOf("연락처", "갤러리", "탭삽")
+//        val tabIcons = listOf(R.drawable.contact, R.drawable.gallery, R.drawable.question)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) {tab, position ->
-//            tab.text = tabTitles[position]
-            tab.setIcon(tabIcons[position])
+            tab.text = tabTitles[position]
+//            tab.setIcon(tabIcons[position])
         }.attach()
     }
 }
