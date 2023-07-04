@@ -5,17 +5,21 @@
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_alarm.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_dismiss_alarm.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/custom_header_layout.xml" value="0.16032608695652173" />
         <entry key="app/src/main/res/layout/fragment_image.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_tab1.xml" value="0.10364583333333334" />
         <entry key="app/src/main/res/layout/fragment_tab2.xml" value="0.10364583333333334" />
         <entry key="app/src/main/res/layout/fragment_tab3.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_time_picker.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/item_alarm.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_image.xml" value="0.1" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17_PREVIEW" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

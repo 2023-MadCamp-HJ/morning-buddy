@@ -1,59 +1,132 @@
 package com.example.madcampproj1
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.madcampproj1.databinding.FragmentTab3Binding
+import com.example.madcampproj1.tab3.AlarmAdapter
+import com.example.madcampproj1.tab3.MyBroadcastReceiver
+import com.example.madcampproj1.tab3.TimePickerFragment
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+//data class AlarmData(
+//    val id: Int,
+//    val hour: Int,
+//    val minute: Int,
+//    val days: BooleanArray
+//)
+data class AlarmData(
+    val id: Int,
+    val hour: Int,
+    val minute: Int,
+    val days: BooleanArray,
+    var isEnabled: Boolean = true
+)
 
-/**
- * A simple [Fragment] subclass.
- * Use the [tab3Fragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class tab3Fragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var pendingIntent: PendingIntent
+
+    internal val alarmList = mutableListOf<AlarmData>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tab3, container, false)
+    ): View {
+        val binding = FragmentTab3Binding.inflate(inflater, container, false)
+
+        alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        val sharedPreferences = context?.getSharedPreferences("alarms", Context.MODE_PRIVATE)
+        val alarmsJson = sharedPreferences?.getString("alarms", "[]")
+        val alarmsArray = JSONArray(alarmsJson)
+        for (i in 0 until alarmsArray.length()) {
+            val alarmJson = alarmsArray.getJSONObject(i)
+            val id = alarmJson.getInt("id")
+            val hour = alarmJson.getInt("hour")
+            val minute = alarmJson.getInt("minute")
+            val isEnabled = alarmJson.getBoolean("isEnabled")
+            val daysJson = alarmJson.getJSONArray("days")
+            val days = BooleanArray(7) { false }
+            for (j in 0 until daysJson.length()) {
+                days[j] = daysJson.getBoolean(j)
+            }
+            val alarmData = AlarmData(id, hour, minute, days, isEnabled)
+            alarmList.add(alarmData)
+        }
+
+        binding.addAlarmButton.setOnClickListener {
+            val newFragment = TimePickerFragment()
+            newFragment.show(childFragmentManager, "timePicker")
+        }
+
+        alarmList.sortWith(compareBy({ it.hour }, { it.minute }))
+
+        val adapter = AlarmAdapter(alarmList, this)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment tab3Fragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            tab3Fragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    override fun onPause() {
+        super.onPause()
+
+        val alarmsArray = JSONArray()
+        for (alarmData in alarmList) {
+            val alarmJson = JSONObject()
+            alarmJson.put("id", alarmData.id)
+            alarmJson.put("hour", alarmData.hour)
+            alarmJson.put("minute", alarmData.minute)
+            alarmJson.put("isEnabled", alarmData.isEnabled)
+            val daysJson = JSONArray()
+            for (day in alarmData.days) {
+                daysJson.put(day)
             }
+            alarmJson.put("days", daysJson)
+            alarmsArray.put(alarmJson)
+        }
+        val alarmsJson = alarmsArray.toString()
+
+        val sharedPreferences = context?.getSharedPreferences("alarms", Context.MODE_PRIVATE)
+        sharedPreferences?.edit()?.putString("alarms", alarmsJson)?.apply()
+    }
+
+
+    internal fun setAlarm(alarmData: AlarmData) {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, alarmData.hour)
+            set(Calendar.MINUTE, alarmData.minute)
+            set(Calendar.SECOND, 0)
+        }
+
+        if (calendar.timeInMillis < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        val intent = Intent(context, MyBroadcastReceiver::class.java).apply {
+            putExtra("ALARM_ID", alarmData.id)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(context, alarmData.id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+    }
+
+    internal fun cancelAlarm(alarmData: AlarmData) {
+        val intent = Intent(context, MyBroadcastReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, alarmData.id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        alarmManager.cancel(pendingIntent)
     }
 }
