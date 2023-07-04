@@ -151,9 +151,7 @@ class tab1Fragment : Fragment() {
 //            println("reload")
 //            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
             val intent = Intent(activity, Tab1AddActivity::class.java)
-            intent.
             startActivity(intent)
-
         }
 
 
