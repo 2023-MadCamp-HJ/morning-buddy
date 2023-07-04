@@ -48,6 +48,7 @@ class tab1Fragment : Fragment() {
     //   private val CONTACTS_PERMISSION_REQUEST = 1
 
     private val contactsList: MutableList<Contact> = mutableListOf()
+    private val temp: MutableList<Contact> = mutableListOf()
 
     @SuppressLint("Range")
     fun loadContacts() {
@@ -78,9 +79,35 @@ class tab1Fragment : Fragment() {
         cursor?.close()
         println(contactsList.toString())
         contactsList.sortBy { contact -> contact.name }
-        contactsList.add(Contact(-1, "2", "3"))
-//            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, contactsList)
-//            listView.adapter = adapter
+
+        temp.clear()
+
+       //contactsList.add(Contact(-1, "2", "3"))
+        if (contactsList.isEmpty()) {
+            temp.add(Contact(-1, contactsList[0].name.first().toString(), "3"))
+            temp.add(contactsList[0])
+        }
+        for(i in 1 until contactsList.size){
+            val currentContact = contactsList[i]
+            val previousContact = contactsList[i - 1]
+            if(previousContact.name.first()!=currentContact.name.first()){
+
+                temp.add(Contact(-1, currentContact.name.first().toString(), "3"))
+
+            }
+            else {
+                print("AAA")
+            }
+            temp.add(currentContact)
+        }
+        contactsList.clear()
+        for(i in 0 until temp.size){
+            contactsList.add(temp[i])
+        }
+//
+//        contactsList = temp.toMutableList()
+//        contactsList.clear()
+//        print(contactsList.toString())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -253,7 +280,7 @@ class ContactAdapter(private val contactList: List<Contact>) :
     class LineViewHolder(val binding: LineItemBinding):
         RecyclerView.ViewHolder(binding.root){
         fun bind(contact: Contact){
-
+            binding.indicateText.text = contact.name
         }
     }
 }
