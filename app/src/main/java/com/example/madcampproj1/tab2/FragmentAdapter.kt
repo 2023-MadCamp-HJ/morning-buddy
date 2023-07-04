@@ -1,4 +1,4 @@
-package com.example.madcampproj1
+package com.example.madcampproj1.tab2
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

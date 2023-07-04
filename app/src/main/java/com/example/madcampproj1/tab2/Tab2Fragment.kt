@@ -1,4 +1,4 @@
-package com.example.madcampproj1
+package com.example.madcampproj1.tab2
 
 import android.Manifest
 import android.app.Activity.RESULT_OK
@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
@@ -18,9 +17,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
@@ -30,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.example.madcampproj1.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import java.io.IOException
@@ -90,7 +88,7 @@ class tab2Fragment : Fragment() {
             panoramaRecyclerView.adapter = panoramaImageGalleryAdapter
         }
 
-        val toggleButton = view.findViewById<Button>(R.id.toggle_button)
+        val toggleButton = view.findViewById<FloatingActionButton>(R.id.toggle_button)
 
         toggleButton.setOnClickListener {
             if (isPanoramaViewVisible) {
@@ -98,19 +96,26 @@ class tab2Fragment : Fragment() {
                 recyclerView.visibility = View.VISIBLE
                 panoramaRecyclerView.visibility = View.GONE
                 isPanoramaViewVisible = false
-                toggleButton.text = "Panorama"
-            } else if (!isPanoramaViewVisible && isGalleryViewVisible){
+                // 이미지 변경
+                toggleButton.setImageResource(R.drawable.film)
+                val tealColor = ContextCompat.getColor(requireContext(), R.color.main_yellow)
+                toggleButton.setBackgroundColor(tealColor)
+            } else {
                 // Switch to panorama view
                 recyclerView.visibility = View.GONE
                 panoramaRecyclerView.visibility = View.VISIBLE
                 isPanoramaViewVisible = true
-                toggleButton.text = "Gallery"
+                // 이미지 변경
+                toggleButton.setImageResource(R.drawable.grid)
+                val tealColor = ContextCompat.getColor(requireContext(), R.color.teal_200)
+                toggleButton.setBackgroundColor(tealColor)
             }
         }
 
+
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!isGalleryViewVisible) {
+                if (!isGalleryViewVisible && !isPanoramaViewVisible) {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.GONE
                     isGalleryViewVisible = true
@@ -199,7 +204,7 @@ class tab2Fragment : Fragment() {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
-        ): ImageGalleryAdapter.MyViewHolder {
+        ): MyViewHolder {
             val context = parent.context
             val inflater = LayoutInflater.from(context)
             val photoView = inflater.inflate(R.layout.item_image, parent, false)
@@ -210,7 +215,7 @@ class tab2Fragment : Fragment() {
             return MyViewHolder(photoView)
         }
 
-        override fun onBindViewHolder(holder: ImageGalleryAdapter.MyViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
             val uri = images[position]
             val imageView = holder.photoImageView
 

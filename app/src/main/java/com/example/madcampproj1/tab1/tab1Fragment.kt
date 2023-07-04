@@ -194,8 +194,14 @@ class tab1Fragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        loadContacts()
-        (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            loadContacts()
+            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+        }
     }
 
     fun fetchContacts() {
@@ -208,7 +214,6 @@ class tab1Fragment : Fragment() {
         // recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
 }
-
 @Parcelize
 data class Contact(
     val id: Long,
