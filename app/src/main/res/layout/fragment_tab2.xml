@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_margin="20dp"
+        android:layout_margin="15dp"
         android:background="#FFCE00"
         android:src="@drawable/film" />
 
@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/toggle_button"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="15dp"
         android:layout_marginTop="0dp"
         android:src="@drawable/ic_camera"
         app:backgroundTint="#FFFFFF" />

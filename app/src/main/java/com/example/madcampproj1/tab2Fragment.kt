@@ -117,7 +117,7 @@ class tab2Fragment : Fragment() {
 
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!isGalleryViewVisible) {
+                if (!isGalleryViewVisible || !isPanoramaViewVisible) {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.GONE
                     isGalleryViewVisible = true
