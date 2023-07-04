@@ -39,7 +39,12 @@ class Tab1EditActivity : AppCompatActivity() {
 
         binding.saveButton.setOnClickListener {
             // getPhoneNumberFromContactId(this,contact!!.id)
-            updateContactInfo(this, contact!!.id, binding.newName.text.toString(),binding.newPhoneNumber.text.toString())
+            updateContactInfo(
+                this,
+                contact!!.id,
+                binding.newName.text.toString(),
+                binding.newPhoneNumber.text.toString()
+            )
 
             onBackPressedDispatcher.onBackPressed()
         }
@@ -47,7 +52,7 @@ class Tab1EditActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
         binding.deleteButton.setOnClickListener {
-            deleteContact(this,contact!!.id)
+            deleteContact(this, contact!!.id)
             onBackPressedDispatcher.onBackPressed()
 
         }
@@ -109,7 +114,12 @@ class Tab1EditActivity : AppCompatActivity() {
         return phoneNumber
     }
 
-    fun updateContactInfo(context: Context, contactId: Long, newName: String, newPhoneNumber: String) {
+    fun updateContactInfo(
+        context: Context,
+        contactId: Long,
+        newName: String,
+        newPhoneNumber: String
+    ) {
         val contentResolver: ContentResolver = context.contentResolver
         val contentValues = ContentValues().apply {
             put(ContactsContract.CommonDataKinds.Phone.NUMBER, newPhoneNumber)
