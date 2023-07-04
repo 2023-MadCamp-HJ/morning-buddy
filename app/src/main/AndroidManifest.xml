@@ -21,9 +21,6 @@
             android:name=".tab1.Tab1EditActivity"
             android:exported="false" />
         <activity
-            android:name=".tab3.DismissAlarmActivity"
-            android:exported="false" />
-        <activity
             android:name=".tab3.AlarmActivity"
             android:exported="false" />
         <activity
@@ -45,4 +42,5 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
 </manifest>
