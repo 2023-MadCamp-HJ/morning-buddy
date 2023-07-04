@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.example.madcampproj1.R
 import com.example.madcampproj1.databinding.ContactItemBinding
 import com.example.madcampproj1.databinding.FragmentTab1Binding
+import com.example.madcampproj1.databinding.LineItemBinding
 import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
 
@@ -44,7 +45,7 @@ class tab1Fragment : Fragment() {
 
     private var _binding: FragmentTab1Binding? = null
     private val binding get() = _binding!!
- //   private val CONTACTS_PERMISSION_REQUEST = 1
+    //   private val CONTACTS_PERMISSION_REQUEST = 1
 
     private val contactsList: MutableList<Contact> = mutableListOf()
 
@@ -77,6 +78,7 @@ class tab1Fragment : Fragment() {
         cursor?.close()
         println(contactsList.toString())
         contactsList.sortBy { contact -> contact.name }
+        contactsList.add(Contact(-1, "2", "3"))
 //            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, contactsList)
 //            listView.adapter = adapter
     }
@@ -100,7 +102,7 @@ class tab1Fragment : Fragment() {
         // Inflate the layout for this fragment
 
         _binding = FragmentTab1Binding.inflate(inflater, container, false)
-        recyclerView=binding.recyclerView
+        recyclerView = binding.recyclerView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val requestPermissionsLauncher = registerForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
@@ -162,7 +164,8 @@ class tab1Fragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-    override fun onResume(){
+
+    override fun onResume() {
         super.onResume()
         loadContacts()
         (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
@@ -170,56 +173,74 @@ class tab1Fragment : Fragment() {
 
     fun fetchContacts() {
 
-      //  val contactList = mutableListOf<Contact>()
+        //  val contactList = mutableListOf<Contact>()
         val adapter = ContactAdapter(contactsList)
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
         // recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
-
 }
-
-
 
 @Parcelize
 data class Contact(
     val id: Long,
     val name: String,
     val phoneNumber: String
-): Parcelable
+) : Parcelable
 
 class ContactAdapter(private val contactList: List<Contact>) :
-    RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun refresh() {
 
         notifyDataSetChanged()
     }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
+
+    override fun getItemViewType(position: Int): Int {
+
+        if(contactList[position].id == -1L ) {
+            return 0
+        }
+        else{
+            return 1
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
 
         //contact_item
-        val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ContactViewHolder(binding).also { holder ->
-            binding.contactBox.setOnClickListener {
-                val position=holder.adapterPosition
-                println(contactList[position].id)
-                println(contactList[position].name)
-                println(contactList[position].phoneNumber)
-                val intent:Intent = Intent(parent.context,Tab1EditActivity::class.java)
-                intent.putExtra("contactInfo",contactList[position])
-                intent.putExtra("test","AAA")
-                startActivity(parent.context, intent, null)
+        if(viewType==0){
+            val binding  = LineItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+            return LineViewHolder(binding)
+        }
+        else {
+            val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return ContactViewHolder(binding).also { holder ->
+                binding.contactBox.setOnClickListener {
+                    val position = holder.adapterPosition
+                    println(contactList[position].id)
+                    println(contactList[position].name)
+                    println(contactList[position].phoneNumber)
+                    val intent: Intent = Intent(parent.context, Tab1EditActivity::class.java)
+                    intent.putExtra("contactInfo", contactList[position])
+                    intent.putExtra("test", "AAA")
+                    startActivity(parent.context, intent, null)
 
+                }
             }
         }
     }
 
     override fun getItemCount() = contactList.size
 
-    override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        holder.bind(contactList[position])
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+     //   holder.bind(contactList[position])
+        when(holder){
+            is ContactViewHolder -> holder.bind(contactList[position])
+            is LineViewHolder -> holder.bind(contactList[position])
+        }
     }
 
     class ContactViewHolder(val binding: ContactItemBinding) :
@@ -227,6 +248,12 @@ class ContactAdapter(private val contactList: List<Contact>) :
         fun bind(contact: Contact) {
             binding.name.text = contact.name
             binding.phoneNumber.text = contact.phoneNumber
+        }
+    }
+    class LineViewHolder(val binding: LineItemBinding):
+        RecyclerView.ViewHolder(binding.root){
+        fun bind(contact: Contact){
+
         }
     }
 }

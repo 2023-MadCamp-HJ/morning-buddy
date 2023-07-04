@@ -9,7 +9,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+        <Button
+            android:id="@+id/refresh_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add A Contact"
+            android:textAllCaps="false"
 
+            android:paddingVertical="16dp"
+            android:paddingHorizontal="16dp"
+            android:layout_margin="16dp"
+            android:elevation="8dp" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
@@ -19,16 +29,7 @@
             tools:itemCount="4"
             tools:listitem="@layout/contact_item" />
 
-        <Button
-            android:id="@+id/refresh_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add A Contact"
-            android:textAllCaps="false"
-            android:paddingVertical="16dp"
-            android:paddingHorizontal="16dp"
-            android:layout_margin="16dp"
-            android:elevation="8dp" />
+
 
 
     </LinearLayout>

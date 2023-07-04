@@ -13,7 +13,7 @@ import com.example.madcampproj1.databinding.ActivityTab1EditBinding
 
 class Tab1AddActivity : AppCompatActivity() {
 
-    private lateinit var binding:ActivityTab1AddBinding
+    private lateinit var binding: ActivityTab1AddBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTab1AddBinding.inflate(layoutInflater)
@@ -22,7 +22,7 @@ class Tab1AddActivity : AppCompatActivity() {
         binding.tab1SaveButton.setOnClickListener {
             var name = binding.tab1NewName.text.toString()
             var phone = binding.tab1NewPhone.text.toString()
-            addContact(this,name,phone)
+            addContact(this, name, phone)
             onBackPressedDispatcher.onBackPressed()
         }
         binding.tab1CancleButton.setOnClickListener {
@@ -30,6 +30,7 @@ class Tab1AddActivity : AppCompatActivity() {
         }
 
     }
+
     fun addContact(context: Context, name: String, phoneNumber: String) {
         val contentResolver: ContentResolver = context.contentResolver
 
@@ -38,20 +39,30 @@ class Tab1AddActivity : AppCompatActivity() {
             putNull(ContactsContract.RawContacts.ACCOUNT_NAME)
         }
 
-        val rawContactUri = contentResolver.insert(ContactsContract.RawContacts.CONTENT_URI, rawContactValues)
+        val rawContactUri =
+            contentResolver.insert(ContactsContract.RawContacts.CONTENT_URI, rawContactValues)
         val rawContactId = rawContactUri?.lastPathSegment?.toLongOrNull()
 
         val contactValues = ContentValues().apply {
             put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-            put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+            put(
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
+            )
             put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
         }
 
         val phoneValues = ContentValues().apply {
             put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-            put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+            put(
+                ContactsContract.Data.MIMETYPE,
+                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
+            )
             put(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber)
-            put(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+            put(
+                ContactsContract.CommonDataKinds.Phone.TYPE,
+                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE
+            )
         }
 
         contentResolver.insert(ContactsContract.Data.CONTENT_URI, contactValues)
