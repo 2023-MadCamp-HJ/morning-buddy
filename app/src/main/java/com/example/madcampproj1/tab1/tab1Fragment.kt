@@ -44,7 +44,7 @@ class tab1Fragment : Fragment() {
 
     private var _binding: FragmentTab1Binding? = null
     private val binding get() = _binding!!
- //   private val CONTACTS_PERMISSION_REQUEST = 1
+    //   private val CONTACTS_PERMISSION_REQUEST = 1
 
     private val contactsList: MutableList<Contact> = mutableListOf()
 
@@ -100,7 +100,7 @@ class tab1Fragment : Fragment() {
         // Inflate the layout for this fragment
 
         _binding = FragmentTab1Binding.inflate(inflater, container, false)
-        recyclerView=binding.recyclerView
+        recyclerView = binding.recyclerView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val requestPermissionsLauncher = registerForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
@@ -162,15 +162,22 @@ class tab1Fragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-    override fun onResume(){
+
+    override fun onResume() {
         super.onResume()
-        loadContacts()
-        (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            loadContacts()
+            (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
+        }
     }
 
     fun fetchContacts() {
 
-      //  val contactList = mutableListOf<Contact>()
+        //  val contactList = mutableListOf<Contact>()
         val adapter = ContactAdapter(contactsList)
 
         recyclerView.adapter = adapter
@@ -181,13 +188,12 @@ class tab1Fragment : Fragment() {
 }
 
 
-
 @Parcelize
 data class Contact(
     val id: Long,
     val name: String,
     val phoneNumber: String
-): Parcelable
+) : Parcelable
 
 class ContactAdapter(private val contactList: List<Contact>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
@@ -196,6 +202,7 @@ class ContactAdapter(private val contactList: List<Contact>) :
 
         notifyDataSetChanged()
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         //  val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
 
@@ -203,13 +210,13 @@ class ContactAdapter(private val contactList: List<Contact>) :
         val binding = ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ContactViewHolder(binding).also { holder ->
             binding.contactBox.setOnClickListener {
-                val position=holder.adapterPosition
+                val position = holder.adapterPosition
                 println(contactList[position].id)
                 println(contactList[position].name)
                 println(contactList[position].phoneNumber)
-                val intent:Intent = Intent(parent.context,Tab1EditActivity::class.java)
-                intent.putExtra("contactInfo",contactList[position])
-                intent.putExtra("test","AAA")
+                val intent: Intent = Intent(parent.context, Tab1EditActivity::class.java)
+                intent.putExtra("contactInfo", contactList[position])
+                intent.putExtra("test", "AAA")
                 startActivity(parent.context, intent, null)
 
             }
