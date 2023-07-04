@@ -7,7 +7,7 @@ import com.example.madcampproj1.AlarmData
 import com.example.madcampproj1.databinding.ItemAlarmBinding
 import com.example.madcampproj1.tab3Fragment
 
-class AlarmAdapter(private val alarmList: List<AlarmData>, private val fragment: tab3Fragment) : RecyclerView.Adapter<AlarmAdapter.ViewHolder>() {
+class AlarmAdapter(private var alarmList: List<AlarmData>, private val fragment: tab3Fragment) : RecyclerView.Adapter<AlarmAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemAlarmBinding) : RecyclerView.ViewHolder(binding.root)
 

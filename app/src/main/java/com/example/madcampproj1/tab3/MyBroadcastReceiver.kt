@@ -6,13 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.media.Ringtone
 import android.media.RingtoneManager
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import com.example.madcampproj1.R
+import org.json.JSONArray
 import java.util.*
+
 
 class MyBroadcastReceiver : BroadcastReceiver() {
 
