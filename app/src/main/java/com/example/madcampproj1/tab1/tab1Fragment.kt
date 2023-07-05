@@ -107,7 +107,7 @@ class tab1Fragment : Fragment() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 // 텍스트가 변경되는 동안에 호출됩니다.
                 // 이 메소드에서는 텍스트가 어떻게 변경되고 있는지 확인할 수 있습니다.
-                loadContacts(s.toString())
+                loadContacts()
                 (binding.recyclerView.adapter as? ContactAdapter)?.refresh()
             }
 
@@ -150,7 +150,7 @@ class tab1Fragment : Fragment() {
     @SuppressLint("Range")
     fun loadContacts(stringFilter: String = "") {
         //  val contactsList = ArrayList<String>()
-
+        var stringFilter = binding.searchInput.text.toString()
         contactsList.clear()
         val cursor = requireActivity().contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null
