@@ -1,12 +1,16 @@
+Mad Camp
+
+몰입캠프
 # Potato App
 
 연락처, 갤러리, 알람 기능을 한 번에
 
 ## Team : Speaking Potato
-김현수 : KAIST 전산학부 19학번 
-박진아 : 성균관 대학교 컬처앤테크놀로지융합전공 19학번
+[김현수](https://github.com/leejy12) : KAIST 전산학부 19학번 
 
-## Introduction
+[박진아](https://github.com/pja9362) : 성균관 대학교 컬처앤테크놀로지융합전공 19학번
+
+## Description
 
 1. 연락처
     - 본인 핸드폰의 연락처를 확인 하세요
@@ -21,6 +25,8 @@
 
 
 ## Develop Features
+Kotlin을 이용했습니다.
+
 1. 연락처
    - 실제 안드로이드 기기의 연락처를 연동했습니다.
    - 수정, 삭제 또한 실제 안드로이드 기기의 연락처를 수정하는 기능입니다.
