@@ -56,28 +56,6 @@ class Tab1EditActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
 
         }
-        binding.callButton.setOnClickListener {
-            val phoneNumber = contact.phoneNumber // 원하는 전화번호를 입력하세요
-            val intent = Intent(Intent.ACTION_DIAL).apply {
-                data = Uri.parse("tel:$phoneNumber")
-            }
-            if (intent.resolveActivity(this.packageManager) != null) {
-                this.startActivity(intent)
-            }
-
-        }
-        binding.messageButton.setOnClickListener {
-            val phoneNumber = contact.phoneNumber // 원하는 전화번호를 입력하세요
-            val smsBody = "" // 보낼 메시지를 입력하세요
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("sms:$phoneNumber")
-                putExtra("sms_body", smsBody)
-            }
-            if (intent.resolveActivity(this.packageManager) != null) {
-                this.startActivity(intent)
-            }
-
-        }
     }
 
     @SuppressLint("Range")

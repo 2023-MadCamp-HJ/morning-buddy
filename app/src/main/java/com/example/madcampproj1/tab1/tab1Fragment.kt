@@ -13,9 +13,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Parcelable
 import android.text.Editable
 import android.text.TextWatcher
@@ -24,6 +26,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
+import androidx.transition.AutoTransition
+import androidx.transition.TransitionManager
 import com.example.madcampproj1.R
 import com.example.madcampproj1.databinding.ContactItemBinding
 import com.example.madcampproj1.databinding.FragmentTab1Binding
@@ -298,14 +302,67 @@ class ContactAdapter(private val contactList: List<Contact>) :
             val binding =
                 ContactItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return ContactViewHolder(binding).also { holder ->
-                binding.contactBox.setOnClickListener {
+
+                val contactBox = binding.contactBox
+                val textLayout = binding.textLayout
+                val buttonLayout = binding.buttonLayout
+                val callButton = binding.callButton
+                val messageButton = binding.messageButton
+                val infoButton = binding.infoButton
+                fun openAndClose(){
+                    val transition = AutoTransition()
+                    transition.duration = 100
+                    TransitionManager.beginDelayedTransition(contactBox, transition)
+
+                    val params = buttonLayout.layoutParams
+                    if (buttonLayout.visibility == View.VISIBLE) {
+                        params.height = 0
+                        buttonLayout.visibility = View.GONE
+                    } else {
+                        params.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                        buttonLayout.visibility = View.VISIBLE
+                    }
+                    buttonLayout.layoutParams = params
+                }
+
+                textLayout.setOnClickListener {
+                    openAndClose()
+                }
+
+                callButton.setOnClickListener {
+                    val position = holder.adapterPosition
+                    val phoneNumber = contactList[position].phoneNumber
+                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                        data = Uri.parse("tel:$phoneNumber")
+                    }
+                    if (intent.resolveActivity(parent.context.packageManager) != null) {
+                        openAndClose()
+                        parent.context.startActivity(intent)
+                    }
+                }
+                messageButton.setOnClickListener {
+                    val position = holder.adapterPosition
+                    val phoneNumber = contactList[position].phoneNumber
+                    val smsBody = "" // 보낼 메시지를 입력하세요
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse("sms:$phoneNumber")
+                        putExtra("sms_body", smsBody)
+                    }
+                    if (intent.resolveActivity(parent.context.packageManager) != null) {
+                        openAndClose()
+                        parent.context.startActivity(intent)
+                    }
+                }
+                infoButton.setOnClickListener {
                     val position = holder.adapterPosition
                     val intent: Intent = Intent(parent.context, Tab1EditActivity::class.java)
                     intent.putExtra("contactInfo", contactList[position])
                     intent.putExtra("test", "AAA")
+                    openAndClose()
                     startActivity(parent.context, intent, null)
-
                 }
+
+
             }
         }
     }
