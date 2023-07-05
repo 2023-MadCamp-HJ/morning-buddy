@@ -73,7 +73,7 @@ class AlarmActivity : AppCompatActivity() {
                 isTemporaryExit = true
                 finish()
             }
-        }, 30 * 1000)
+        }, 15 * 1000)
     }
 
     override fun onDestroy() {
@@ -147,6 +147,7 @@ class AlarmActivity : AppCompatActivity() {
                             cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                         if (columnIndex != -1) {
                             val phoneNumber = cursor.getString(columnIndex)
+                            println("########PHONENUMBER"+ phoneNumber)
                             cursor.close()
 
                             val smsIntent = Intent(Intent.ACTION_SENDTO).apply {
