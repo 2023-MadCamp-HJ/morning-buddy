@@ -9,10 +9,12 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.ContactsContract
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.HandlerCompat
 import com.example.madcampproj1.R
 import org.json.JSONArray
+import java.text.SimpleDateFormat
 import java.util.*
 
 class AlarmActivity : AppCompatActivity() {
@@ -30,6 +32,11 @@ class AlarmActivity : AppCompatActivity() {
             val sharedPreferences = getSharedPreferences("alarms", Context.MODE_PRIVATE)
             alarmCount = sharedPreferences.getInt("alarmCount$alarmId", 0)
         }
+
+        // 현재 시각 표시
+        val timeText = findViewById<TextView>(R.id.timeText)
+        val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        timeText.text = currentTime
 
         val dismissButton = findViewById<Button>(R.id.dismissButton)
         dismissButton.setOnClickListener {
