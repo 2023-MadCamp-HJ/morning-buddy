@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         binding.viewPager.isUserInputEnabled = false
 
         // Tab Title 설정
-        val tabTitles = listOf("연락처", "갤러리", "탭삽")
+        val tabTitles = listOf("연락처", "갤러리", "알람")
 //        val tabIcons = listOf(R.drawable.contact, R.drawable.gallery, R.drawable.question)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) {tab, position ->
             tab.text = tabTitles[position]
@@ -55,7 +55,5 @@ class MainActivity : AppCompatActivity() {
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-
-
     }
 }
