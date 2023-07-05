@@ -70,7 +70,7 @@ Kotlin을 이용했습니다.
 
 
 ## How to download APK
-[APK 파일 위치](https://github.com/2023-MadCamp-HJ/project1/blob/main/app/release/app-release.apk)
+[APK 파일 위치]([https://github.com/2023-MadCamp-HJ/project1/blob/main/app/release/app-release.apk](https://github.com/2023-MadCamp-HJ/project1/raw/main/app/release/app-release.apk)https://github.com/2023-MadCamp-HJ/project1/raw/main/app/release/app-release.apk)
 
 ## Questions & Feedbacks
 skykhs3@kaist.ac.kr
