@@ -10,7 +10,9 @@ android {
     viewBinding{
         enabled = true
     }
-
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
     defaultConfig {
         applicationId "com.example.madcampproj1"
         minSdk 25
