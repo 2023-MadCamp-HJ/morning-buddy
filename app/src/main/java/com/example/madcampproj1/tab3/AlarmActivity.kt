@@ -2,12 +2,14 @@ package com.example.madcampproj1.tab3
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +18,7 @@ import com.example.madcampproj1.R
 import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class AlarmActivity : AppCompatActivity() {
     private var isDismissed = false
@@ -73,7 +76,7 @@ class AlarmActivity : AppCompatActivity() {
                 isTemporaryExit = true
                 finish()
             }
-        }, 30 * 1000)
+        }, 15 * 1000)
     }
 
     override fun onDestroy() {
@@ -147,6 +150,7 @@ class AlarmActivity : AppCompatActivity() {
                             cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                         if (columnIndex != -1) {
                             val phoneNumber = cursor.getString(columnIndex)
+                            println("########PHONENUMBER"+ phoneNumber)
                             cursor.close()
 
                             val smsIntent = Intent(Intent.ACTION_SENDTO).apply {
