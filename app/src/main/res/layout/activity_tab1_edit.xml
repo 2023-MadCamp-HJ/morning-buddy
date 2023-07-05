@@ -90,6 +90,7 @@
         android:padding="10dp"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        android:contentDescription="Enter a phone number" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

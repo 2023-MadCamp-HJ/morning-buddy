@@ -126,6 +126,17 @@ class tab1Fragment : Fragment() {
                 false
             }
         }
+//        val searchText = binding.searchInput
+//        binding.constraintLayout.setOnClickListener {
+//            // 포커스가 있는 뷰를 가져옵니다.
+//            val currentFocus = activity?.currentFocus
+//
+//            // 포커스가 EditText인 경우 키보드를 숨깁니다.
+//            if (currentFocus == searchText) {
+//                val imm = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                imm.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+//            }
+//        }
 
         return binding.root
     }
@@ -309,7 +320,7 @@ class ContactAdapter(private val contactList: List<Contact>) :
                 val callButton = binding.callButton
                 val messageButton = binding.messageButton
                 val infoButton = binding.infoButton
-                fun openAndClose(){
+                fun openAndClose() {
                     val transition = AutoTransition()
                     transition.duration = 100
                     TransitionManager.beginDelayedTransition(contactBox, transition)
