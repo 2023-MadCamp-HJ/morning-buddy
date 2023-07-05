@@ -18,21 +18,22 @@
             android:id="@+id/tab1_cancle_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
             android:text="Cancel"
             android:textAllCaps="false" />
+
         <Button
             android:id="@+id/tab1_dummy_button"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Make dummy"
-            android:textSize="11sp"
+            android:textAllCaps="false"
             android:textColor="#8A2BE2"
-            android:textAllCaps="false" />
+            android:textSize="11sp" />
 
         <Button
             android:id="@+id/tab1_save_button"
@@ -61,10 +62,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="#f2f2f2"
+        android:hint="Please type a name"
         android:inputType="text"
         android:padding="10dp"
         android:textSize="24sp"
-        android:hint="Please type a name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
@@ -84,10 +85,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="#f2f2f2"
+        android:hint="010-0000-0000"
         android:inputType="phone"
         android:padding="10dp"
         android:textSize="24sp"
-        android:hint="010-0000-0000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
