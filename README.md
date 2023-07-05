@@ -1,9 +1,14 @@
 # ☀️ Morning Buddy ☀️
 
-연락처, 갤러리, 알람 기능을 한 번에 ! 모닝 버디와 함께라면 일어날 수밖에! 😎
+
 </br>
-<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/81a13a02-3d23-44f9-b5d5-e04cd3118d71" width="200" height="auto">
+<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/81a13a02-3d23-44f9-b5d5-e04cd3118d71" width="150" height="auto">
 </br>
+연락처, 갤러리, 알람 기능을 한 번에 !
+<b>모닝 버디</b>와 함께라면 일어날 수밖에! 😎
+</br>
+</br>
+
 ## Team : Speaking Potato
 [김현수](https://github.com/leejy12) : KAIST 전산학부 19학번 
 
@@ -34,7 +39,7 @@ Kotlin을 이용했습니다.
    - 쉽게 테스트 할 수 있도록 연락처 추가 페이지에 무작위 이름과 번호를 추가 하는 버튼을 만들었습니다.
 
 
-2. 갤러리 [Picasso 라이브러리 사용]
+2. 갤러리 [<b>Picasso 라이브러리 사용</b>]
    - 기기의 갤러리와 연동하여 실제 사진들을 불러옵니다.
    - (아이폰 갤러리처럼) 최신 이미지를 가장 하단에 배치하며 탭 진입 시 스크롤을 조정하여 최신 이미지가 보이도록 합니다.
    - 카메라와 연동하여 사진을 찍을 수 있고, 촬영한 사진을 바로 앱 내 갤러리에서 확인할 수 있습니다.
@@ -52,14 +57,14 @@ Kotlin을 이용했습니다.
    - 만약 3번까지 다시 알림을 해제하지 않으면, 기기의 연락처 및 문자 앱과 연동하여 연락처의 첫번째 사람에게 '모닝콜 좀 해주세요!' 라고 문자를 보냅니다.
   
 
-<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/b63fc757-060e-4e96-8ecf-8c2f7f4343b7" width="185" height="auto">
+<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/b63fc757-060e-4e96-8ecf-8c2f7f4343b7" width="160" height="auto">
 
-<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/d38e489d-63f6-4930-a5ed-a6048dee4bd0" width="185" height="auto">
-<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/5e172dfe-f679-4467-b09f-ed0404cc7968" width="185" height="auto">
+<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/d38e489d-63f6-4930-a5ed-a6048dee4bd0" width="160" height="auto">
+<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/5e172dfe-f679-4467-b09f-ed0404cc7968" width="160" height="auto">
 
 
-<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/da0a84dd-254d-492b-aa20-877103c25c5a" width="185" height="auto">
-<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/70feb79d-4bd7-45ec-8f16-81cdac7605bb" width="185" height="auto">
+<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/da0a84dd-254d-492b-aa20-877103c25c5a" width="160" height="auto">
+<img src="https://github.com/2023-MadCamp-HJ/project1/assets/80195979/70feb79d-4bd7-45ec-8f16-81cdac7605bb" width="160" height="auto">
 
 
 ## How to download APK
