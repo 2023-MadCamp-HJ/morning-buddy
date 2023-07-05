@@ -19,6 +19,7 @@ import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class AlarmActivity : AppCompatActivity() {
     private var isDismissed = false
     private var isTemporaryExit = false
