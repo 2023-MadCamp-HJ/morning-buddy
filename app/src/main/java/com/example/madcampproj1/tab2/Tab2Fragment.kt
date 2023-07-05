@@ -62,7 +62,7 @@ class tab2Fragment : Fragment() {
 
         val layoutManager = GridLayoutManager(requireContext(), 3)
         recyclerView = view.findViewById(R.id.rv_images)
-        recyclerView.setHasFixedSize(true)
+      //  recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = layoutManager
 
         panoramaRecyclerView = view.findViewById(R.id.rv_panorama_images)

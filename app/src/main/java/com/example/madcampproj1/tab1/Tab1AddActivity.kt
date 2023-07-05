@@ -151,16 +151,19 @@ class Tab1AddActivity : AppCompatActivity() {
             "지수"
         )
 
-
-        val firstName = firstNames.random()
-        val lastName = lastNames.random()
+        val seed = System.currentTimeMillis()
+        val random = Random(seed)
+        val firstName = firstNames.random(random)
+        val lastName = lastNames.random(random)
 
         return "$firstName$lastName"
     }
 
     fun generateRandomPhoneNumber(): String {
-        val number1 = Random.nextInt(0, 10000).toString().padStart(4, '0')
-        val number2 = Random.nextInt(0, 10000).toString().padStart(4, '0')
+        val seed = System.currentTimeMillis()
+        val random = Random(seed)
+        val number1 = random.nextInt(0, 10000).toString().padStart(4, '0')
+        val number2 = random.nextInt(0, 10000).toString().padStart(4, '0')
 
         return "010-$number1-$number2"
     }
